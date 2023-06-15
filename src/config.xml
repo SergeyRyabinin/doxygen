@@ -2260,6 +2260,15 @@ hr.footer {
 ]]>
       </docs>
     </option>
+    <option type='bool' id='HTML_DYNAMIC_TUMBLERS' defval='1' depends='GENERATE_HTML'>
+      <docs>
+<![CDATA[
+ If the \c HTML_DYNAMIC_SECTION_TUMBLERS tag is set to \c YES then the generated HTML
+ documentation sections such as "inherited from" or "table of content"
+ visibility can be toggled on or off.
+]]>
+      </docs>
+    </option>
     <option type='int' id='HTML_INDEX_NUM_ENTRIES' minval='0' maxval='9999' defval='100' depends='GENERATE_HTML'>
       <docs>
 <![CDATA[

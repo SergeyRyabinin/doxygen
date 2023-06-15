@@ -266,7 +266,14 @@ static void generateIndent(TextStream &t, const FTVNodePtr &n,bool opened)
     QCString dir = opened ? "&#9660;" : "&#9658;";
     t << "<span style=\"width:" << (indent*16) << "px;display:inline-block;\">&#160;</span>"
       << "<span id=\"arr_" << generateIndentLabel(n,0) << "\" class=\"arrow\" ";
-    t << "onclick=\"toggleFolder('" << generateIndentLabel(n,0) << "')\"";
+    if (Config_getBool(HTML_DYNAMIC_TUMBLERS))
+    {
+      t << "onclick=\"toggleFolder('" << generateIndentLabel(n,0) << "')\"";
+    }
+    else
+    {
+      t << "style=\"cursor:default\"";
+    }
     t << ">" << dir
       << "</span>";
   }
@@ -415,9 +422,12 @@ void FTVHelp::Private::generateTree(TextStream &t, const FTVNodes &nl,int level,
       {
         t << "<span id=\"img_" << generateIndentLabel(n,0)
           << "\" class=\"iconf"
-          << (nodeOpened?"open":"closed")
-          << "\" onclick=\"toggleFolder('" << generateIndentLabel(n,0)
-          << "')\">&#160;</span>";
+          << (nodeOpened?"open":"closed");
+        if (Config_getBool(HTML_DYNAMIC_TUMBLERS))
+        {
+          t << "\" onclick=\"toggleFolder('" << generateIndentLabel(n,0);
+        }
+        t << "')\">&#160;</span>";
       }
       generateLink(t,n);
       t << "</td><td class=\"desc\">";
@@ -891,7 +901,7 @@ void FTVHelp::generateTreeViewInline(TextStream &t)
   }
   int preferredDepth = depth;
   // write level selector
-  if (depth>1)
+  if (depth>1 && Config_getBool(HTML_DYNAMIC_TUMBLERS))
   {
     t << "<div class=\"levels\">[";
     t << theTranslator->trDetailLevel();
@@ -922,6 +932,10 @@ void FTVHelp::generateTreeViewInline(TextStream &t)
         }
       }
     }
+  }
+  if(!Config_getBool(HTML_DYNAMIC_TUMBLERS))
+  {
+      preferredDepth = 9999;
   }
   //printf("preferred depth=%d\n",preferredDepth);
 

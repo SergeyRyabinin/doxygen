@@ -1977,7 +1977,7 @@ void HtmlGenerator::startMemberItem(const QCString &anchor,MemberItemType type,c
     m_emptySection=FALSE;
   }
   m_t << "<tr class=\"memitem:" << anchor;
-  if (!inheritId.isEmpty())
+  if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
   {
     m_t << " inherit " << inheritId;
   }
@@ -2002,7 +2002,7 @@ void HtmlGenerator::endMemberTemplateParams(const QCString &anchor,const QCStrin
 {
   m_t << "</td></tr>\n";
   m_t << "<tr class=\"memitem:" << anchor;
-  if (!inheritId.isEmpty())
+  if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
   {
     m_t << " inherit " << inheritId;
   }
@@ -2047,7 +2047,7 @@ void HtmlGenerator::startMemberDescription(const QCString &anchor,const QCString
     m_emptySection=FALSE;
   }
   m_t << "<tr class=\"memdesc:" << anchor;
-  if (!inheritId.isEmpty())
+  if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
   {
     m_t << " inherit " << inheritId;
   }
@@ -3318,11 +3318,21 @@ void HtmlGenerator::writeInheritedSectionTitle(
   addHtmlExtensionIfMissing(fn);
   classLink=classLink+fn+a;
   classLink+=QCString("\">")+convertToHtml(name,FALSE)+"</a>";
-  m_t << "<tr class=\"inherit_header " << id << "\">"
-    << "<td colspan=\"2\" onclick=\"javascript:toggleInherit('" << id << "')\">"
-    << "<img src=\"" << m_relPath << "closed.png\" alt=\"-\"/>&#160;"
-    << theTranslator->trInheritedFrom(convertToHtml(title,FALSE),classLink)
-    << "</td></tr>\n";
+  bool dynamicSectionsToggle = Config_getBool(HTML_DYNAMIC_TUMBLERS);
+  if (dynamicSectionsToggle)
+  {
+    m_t << "<tr class=\"inherit_header " << id << "\">"
+      << "<td colspan=\"2\" onclick=\"javascript:toggleInherit('" << id << "')\">"
+      << "<img src=\"" << m_relPath << "closed.png\" alt=\"-\"/>&#160;"
+      << theTranslator->trInheritedFrom(convertToHtml(title,FALSE),classLink)
+      << "</td></tr>\n";
+  }
+  else
+  {
+    m_t << "<tr class=\"heading\"><td colspan=\"2\"><h3 id=\"" << id << "\">"
+      << theTranslator->trInheritedFrom(convertToHtml(title,FALSE),classLink)
+      << "</h3></td></tr>";
+  }
 }
 
 void HtmlGenerator::writeSummaryLink(const QCString &file,const QCString &anchor,const QCString &title,bool first)
@@ -3355,7 +3365,7 @@ void HtmlGenerator::writeSummaryLink(const QCString &file,const QCString &anchor
 void HtmlGenerator::endMemberDeclaration(const QCString &anchor,const QCString &inheritId)
 {
   m_t << "<tr class=\"separator:" << anchor;
-  if (!inheritId.isEmpty())
+  if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
   {
     m_t << " inherit " << inheritId;
   }
