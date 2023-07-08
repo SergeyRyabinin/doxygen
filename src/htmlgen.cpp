@@ -79,6 +79,7 @@ static void writeClientSearchBox(TextStream &t,const QCString &relPath)
   t << "               onmouseover=\"return searchBox.OnSearchSelectShow()\" ";
   t << "               onclick=\"return searchBox.OnSearchSelectShow()\" ";
   t << "               onmouseout=\"return searchBox.OnSearchSelectHide()\">&#160;</span>\n";
+  t << "               <label for=\"MSearchField\">Search</label>";
   t << "          <input type=\"text\" id=\"MSearchField\" value=\"\" placeholder=\""
     << theTranslator->trSearch() << "\" accesskey=\"S\"\n";
   t << "               onfocus=\"searchBox.OnSearchFieldFocus(true)\" \n";
@@ -1972,12 +1973,22 @@ void HtmlGenerator::endMemberList()
 void HtmlGenerator::startMemberItem(const QCString &anchor,MemberItemType type,const QCString &inheritId)
 {
   DBG_HTML(m_t << "<!-- startMemberItem() -->\n")
+  QCString hTable = "table";
+  QCString hRow = "tr";
+  QCString hCol = "td";
+  if (!Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    hTable = "div";
+    hRow = "div";
+    hCol = "span";
+  }
+
   if (m_emptySection)
   {
-    m_t << "<table class=\"memberdecls\">\n";
+    m_t << "<" << hTable << " class=\"memberdecls\">\n";
     m_emptySection=FALSE;
   }
-  m_t << "<tr class=\"memitem:" << anchor;
+  m_t << "<" << hRow << " class=\"memitem:" << anchor;
   if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
   {
     m_t << " inherit " << inheritId;
@@ -1992,7 +2003,14 @@ void HtmlGenerator::endMemberItem(MemberItemType type)
   {
     insertMemberAlign(false);
   }
-  m_t << "</td></tr>\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "</td></tr>\n";
+  }
+  else
+  {
+    m_t << "</span></div>\n";
+  }
 }
 
 void HtmlGenerator::startMemberTemplateParams()
@@ -2001,13 +2019,29 @@ void HtmlGenerator::startMemberTemplateParams()
 
 void HtmlGenerator::endMemberTemplateParams(const QCString &anchor,const QCString &inheritId)
 {
-  m_t << "</td></tr>\n";
-  m_t << "<tr class=\"memitem:" << anchor;
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "</td></tr>\n";
+    m_t << "<tr class=\"memitem:" << anchor;
+  }
+  else
+  {
+    m_t << "</span></div>\n";
+    m_t << "<div class=\"memitem:" << anchor;
+  }
+
   if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
   {
     m_t << " inherit " << inheritId;
   }
-  m_t << "\"><td class=\"memTemplItemLeft\" align=\"right\" valign=\"top\">";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "\"><td class=\"memTemplItemLeft\" align=\"right\" valign=\"top\">";
+  }
+  else
+  {
+    m_t << "\"><span class=\"memTemplItemLeft\" align=\"right\" valign=\"top\">";
+  }
 }
 
 void HtmlGenerator::startCompoundTemplateParams()
@@ -2024,18 +2058,32 @@ void HtmlGenerator::insertMemberAlign(bool templ)
 {
   DBG_HTML(m_t << "<!-- insertMemberAlign -->\n")
   QCString className = templ ? "memTemplItemRight" : "memItemRight";
-  m_t << "&#160;</td><td class=\"" << className << "\" valign=\"bottom\">";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "&#160;</td><td class=\"" << className << "\" valign=\"bottom\">";
+  }
+  else
+  {
+    m_t << "&#160;</span><span class=\"" << className << "\" valign=\"bottom\">";
+  }
 }
 
 void HtmlGenerator::insertMemberAlignLeft(MemberItemType type, bool initTag)
 {
-  if (!initTag) m_t << "&#160;</td>";
+  QCString htmlTag = "td";
+  QCString align = " align=\"right\"";
+  if (!Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    htmlTag = "span";
+  }
+
+  if (!initTag) m_t << "&#160;</" << htmlTag << ">";
   switch (type)
   {
-    case MemberItemType::Normal:         m_t << "<td class=\"memItemLeft\" align=\"right\" valign=\"top\">"; break;
-    case MemberItemType::AnonymousStart: m_t << "<td class=\"memItemLeft\" >"; break;
-    case MemberItemType::AnonymousEnd:   m_t << "<td class=\"memItemLeft\" valign=\"top\">"; break;
-    case MemberItemType::Templated:      m_t << "<td class=\"memTemplParams\" colspan=\"2\">"; break;
+    case MemberItemType::Normal:         m_t << "<" << htmlTag << " class=\"memItemLeft\""<< align << " valign=\"top\">"; break;
+    case MemberItemType::AnonymousStart: m_t << "<" << htmlTag << " class=\"memItemLeft\" >"; break;
+    case MemberItemType::AnonymousEnd:   m_t << "<" << htmlTag << " class=\"memItemLeft\" valign=\"top\">"; break;
+    case MemberItemType::Templated:      m_t << "<" << htmlTag << " class=\"memTemplParams\" colspan=\"2\">"; break;
   }
 }
 
@@ -2044,7 +2092,14 @@ void HtmlGenerator::startMemberDescription(const QCString &anchor,const QCString
   DBG_HTML(m_t << "<!-- startMemberDescription -->\n")
   if (m_emptySection)
   {
-    m_t << "<table class=\"memberdecls\">\n";
+    if (Config_getBool(HTML_TABLE_DECLARATIONS))
+    {
+      m_t << "<table class=\"memberdecls\">\n";
+    }
+    else
+    {
+      m_t << "<div class=\"memberdecls\">\n";
+    }
     m_emptySection=FALSE;
   }
   m_t << "<tr class=\"memdesc:" << anchor;
@@ -2077,7 +2132,14 @@ void HtmlGenerator::endMemberSections()
   DBG_HTML(m_t << "<!-- endMemberSections -->\n")
   if (!m_emptySection)
   {
-    m_t << "</table>\n";
+    if (Config_getBool(HTML_TABLE_DECLARATIONS))
+    {
+      m_t << "</table>\n";
+    }
+    else
+    {
+      m_t << "</div>\n";
+    }
   }
 }
 
@@ -2086,15 +2148,36 @@ void HtmlGenerator::startMemberHeader(const QCString &anchor, int typ)
   DBG_HTML(m_t << "<!-- startMemberHeader -->\n")
   if (!m_emptySection)
   {
-    m_t << "</table>";
+    if (Config_getBool(HTML_TABLE_DECLARATIONS))
+    {
+      m_t << "</table>\n";
+    }
+    else
+    {
+      m_t << "</div>\n";
+    }
     m_emptySection=TRUE;
   }
   if (m_emptySection)
   {
-    m_t << "<table class=\"memberdecls\">\n";
+    if (Config_getBool(HTML_TABLE_DECLARATIONS))
+    {
+      m_t << "<table class=\"memberdecls\">\n";
+    }
+    else
+    {
+      m_t << "<div class=\"memberdecls\">\n";
+    }
     m_emptySection=FALSE;
   }
-  m_t << "<tr class=\"heading\"><td colspan=\"" << typ << "\"><h2 class=\"groupheader\">";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "<tr class=\"heading\"><td colspan=\"" << typ << "\"><h2 class=\"groupheader\">";
+  }
+  else
+  {
+    m_t << "<div class=\"heading\"><h2 class=\"groupheader\">";
+  }
   if (!anchor.isEmpty())
   {
     m_t << "<a id=\"" << anchor << "\" name=\"" << anchor << "\"></a>\n";
@@ -2104,7 +2187,14 @@ void HtmlGenerator::startMemberHeader(const QCString &anchor, int typ)
 void HtmlGenerator::endMemberHeader()
 {
   DBG_HTML(m_t << "<!-- endMemberHeader -->\n")
-  m_t << "</h2></td></tr>\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "</h2></td></tr>\n";
+  }
+  else
+  {
+    m_t << "</h2></div>\n";
+  }
 }
 
 void HtmlGenerator::startMemberSubtitle()
@@ -2121,12 +2211,26 @@ void HtmlGenerator::endMemberSubtitle()
 
 void HtmlGenerator::startIndexList()
 {
-  m_t << "<table>\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "<table>\n";
+  }
+  else
+  {
+    m_t << "<div>\n";
+  }
 }
 
 void HtmlGenerator::endIndexList()
 {
-  m_t << "</table>\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "</table>\n";
+  }
+  else
+  {
+    m_t << "</div>\n";
+  }
 }
 
 void HtmlGenerator::startIndexKey()
@@ -3213,7 +3317,14 @@ void HtmlGenerator::startInlineHeader()
 {
   if (m_emptySection)
   {
-    m_t << "<table class=\"memberdecls\">\n";
+    if (Config_getBool(HTML_TABLE_DECLARATIONS))
+    {
+      m_t << "<table class=\"memberdecls\">\n";
+    }
+    else
+    {
+      m_t << "<div class=\"memberdecls\">\n";
+    }
     m_emptySection=FALSE;
   }
   m_t << "<tr><td colspan=\"2\"><h3>";
@@ -3319,20 +3430,29 @@ void HtmlGenerator::writeInheritedSectionTitle(
   addHtmlExtensionIfMissing(fn);
   classLink=classLink+fn+a;
   classLink+=QCString("\">")+convertToHtml(name,FALSE)+"</a>";
+  QCString hRow = "tr";
+  QCString hCol = "td";
+  QCString hColSpan = " colspan=\"2\"";
+  if (!Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    hRow = "div";
+    hCol = "span";
+    hColSpan = "";
+  }
   bool dynamicSectionsToggle = Config_getBool(HTML_DYNAMIC_TUMBLERS);
   if (dynamicSectionsToggle)
   {
-    m_t << "<tr class=\"inherit_header " << id << "\">"
-      << "<td colspan=\"2\" onclick=\"javascript:toggleInherit('" << id << "')\">"
+    m_t << "<"<<hRow<<" class=\"inherit_header " << id << "\">"
+      << "<"<<hCol<<hColSpan<<" onclick=\"javascript:toggleInherit('" << id << "')\">"
       << "<img src=\"" << m_relPath << "closed.png\" alt=\"-\"/>&#160;"
       << theTranslator->trInheritedFrom(convertToHtml(title,FALSE),classLink)
-      << "</td></tr>\n";
+      << "</"<<hCol<<"></"<<hRow<<">\n";
   }
   else
   {
-    m_t << "<tr class=\"heading\"><td colspan=\"2\"><h3 id=\"" << id << "\">"
+    m_t << "<"<<hRow<<" class=\"heading\"><"<<hCol<<hColSpan<<"><h3 id=\"" << id << "\">"
       << theTranslator->trInheritedFrom(convertToHtml(title,FALSE),classLink)
-      << "</h3></td></tr>";
+      << "</h3></"<<hCol<<"></"<<hRow<<">\n";
   }
 }
 
@@ -3365,12 +3485,25 @@ void HtmlGenerator::writeSummaryLink(const QCString &file,const QCString &anchor
 
 void HtmlGenerator::endMemberDeclaration(const QCString &anchor,const QCString &inheritId)
 {
-  m_t << "<tr class=\"separator:" << anchor;
-  if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
   {
-    m_t << " inherit " << inheritId;
+    m_t << "<tr class=\"separator:" << anchor;
+    if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
+    {
+      m_t << " inherit " << inheritId;
+    }
+    m_t << "\"><td class=\"memSeparator\" colspan=\"2\">&#160;</td></tr>\n";
   }
-  m_t << "\"><td class=\"memSeparator\" colspan=\"2\">&#160;</td></tr>\n";
+  else
+  {
+    m_t << "<div class=\"separator:" << anchor;
+    if (!inheritId.isEmpty() && Config_getBool(HTML_DYNAMIC_TUMBLERS))
+    {
+      m_t << " inherit " << inheritId;
+    }
+    m_t << "\"><span class=\"memSeparator\">&#160;</span></div>\n";
+  }
+
 }
 
 QCString HtmlGenerator::getMathJaxMacros()
