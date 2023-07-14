@@ -3525,9 +3525,19 @@ void MemberDefImpl::writeDocumentation(const MemberList *ml,
       ol.pushGeneratorState();
       ol.disableAll();
       ol.enable(OutputType::Html);
-      ol.writeString("<table class=\"mlabels\">\n");
-      ol.writeString("  <tr>\n");
-      ol.writeString("  <td class=\"mlabels-left\">\n");
+      if (Config_getBool(HTML_TABLE_DECLARATIONS))
+      {
+        ol.writeString("<table class=\"mlabels\">\n");
+        ol.writeString("  <tr>\n");
+        ol.writeString("  <td class=\"mlabels-left\">\n");
+      }
+      else
+      {
+        ol.writeString("<div class=\"mlabels\">\n");
+        ol.writeString("  <div>\n");
+        ol.writeString("  <span class=\"mlabels-left\">\n");
+      }
+
       ol.popGeneratorState();
       htmlEndLabelTable=TRUE;
     }
@@ -3657,8 +3667,16 @@ void MemberDefImpl::writeDocumentation(const MemberList *ml,
   ol.enable(OutputType::Html);
   if (htmlEndLabelTable)
   {
-    ol.writeString("  </td>\n");
-    ol.writeString("  <td class=\"mlabels-right\">\n");
+    if (Config_getBool(HTML_TABLE_DECLARATIONS))
+    {
+      ol.writeString("  </td>\n");
+      ol.writeString("  <td class=\"mlabels-right\">\n");
+    }
+    else
+    {
+      ol.writeString("  </span>\n");
+      ol.writeString("  <span class=\"mlabels-right\">\n");
+    }
     ol.startLabels();
     size_t count=0;
     for (const auto &s : sl)
@@ -3667,9 +3685,19 @@ void MemberDefImpl::writeDocumentation(const MemberList *ml,
       ol.writeLabel(s.c_str(),count==sl.size());
     }
     ol.endLabels();
-    ol.writeString("  </td>\n");
-    ol.writeString("  </tr>\n");
-    ol.writeString("</table>\n");
+    if (Config_getBool(HTML_TABLE_DECLARATIONS))
+    {
+      ol.writeString("  </td>\n");
+      ol.writeString("  </tr>\n");
+      ol.writeString("</table>\n");
+    }
+    else
+    {
+      ol.writeString("  </span>\n");
+      ol.writeString("  </div>\n");
+      ol.writeString("</div>\n");
+    }
+
   }
   ol.writeString("</div>");
   ol.popGeneratorState();

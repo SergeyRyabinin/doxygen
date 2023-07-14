@@ -2296,117 +2296,200 @@ void HtmlGenerator::startMemberDocName(bool /*align*/)
 {
   DBG_HTML(m_t << "<!-- startMemberDocName -->\n";)
 
-  m_t << "      <table class=\"memname\">\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "      <table class=\"memname\">\n";
 
-  m_t << "        <tr>\n";
-  m_t << "          <td class=\"memname\">";
+    m_t << "        <tr>\n";
+    m_t << "          <td class=\"memname\">";
+  }
+  else
+  {
+    m_t << "      <div class=\"memname\">\n";
+
+    m_t << "        <div>\n";
+    m_t << "          <span class=\"memname\">";
+  }
 }
 
 void HtmlGenerator::endMemberDocName()
 {
   DBG_HTML(m_t << "<!-- endMemberDocName -->\n";)
-  m_t << "</td>\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "</td>\n";
+  }
+  else
+  {
+    m_t << "</span>\n";
+  }
 }
 
 void HtmlGenerator::startParameterList(bool openBracket)
 {
   DBG_HTML(m_t << "<!-- startParameterList -->\n";)
-  m_t << "          <td>";
-  if (openBracket) m_t << "(";
-  m_t << "</td>\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "          <td>";
+    if (openBracket) m_t << "(";
+    m_t << "</td>\n";
+  }
+  else
+  {
+    m_t << "          <span>";
+    if (openBracket) m_t << "(";
+    m_t << "</span>\n";
+  }
 }
 
 void HtmlGenerator::startParameterType(bool first,const QCString &key)
 {
+  QCString hRow = "tr";
+  QCString hCol = "td";
+  if (!Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    hRow = "div";
+    hCol = "span";
+  }
+
   if (first)
   {
     DBG_HTML(m_t << "<!-- startFirstParameterType -->\n";)
-    m_t << "          <td class=\"paramtype\">";
+    m_t << "          <"<< hCol <<" class=\"paramtype\">";
   }
   else
   {
     DBG_HTML(m_t << "<!-- startParameterType -->\n";)
-    m_t << "        <tr>\n";
-    m_t << "          <td class=\"paramkey\">" << key << "</td>\n";
-    m_t << "          <td></td>\n";
-    m_t << "          <td class=\"paramtype\">";
+    m_t << "        <"<< hRow <<">\n";
+    m_t << "          <"<< hCol <<" class=\"paramkey\">" << key << "</"<< hCol <<">\n";
+    m_t << "          <"<< hCol <<"></"<< hCol <<">\n";
+    m_t << "          <"<< hCol <<" class=\"paramtype\">";
   }
 }
 
 void HtmlGenerator::endParameterType()
 {
   DBG_HTML(m_t << "<!-- endParameterType -->\n";)
-  m_t << "&#160;</td>\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "&#160;</td>\n";
+  }
+  else
+  {
+    m_t << "&#160;</span>\n";
+  }
 }
 
 void HtmlGenerator::startParameterName(bool /*oneArgOnly*/)
 {
   DBG_HTML(m_t << "<!-- startParameterName -->\n";)
-  m_t << "          <td class=\"paramname\">";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "          <td class=\"paramname\">";
+  }
+  else
+  {
+    m_t << "          <span class=\"paramname\">";
+  }
 }
 
 void HtmlGenerator::endParameterName(bool last,bool emptyList,bool closeBracket)
 {
   DBG_HTML(m_t << "<!-- endParameterName -->\n";)
+  QCString hRow = "tr";
+  QCString hCol = "td";
+  if (!Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    hRow = "div";
+    hCol = "span";
+  }
+
   if (last)
   {
     if (emptyList)
     {
-      if (closeBracket) m_t << "</td><td>)";
-      m_t << "</td>\n";
-      m_t << "          <td>";
+      if (closeBracket) m_t << "</"<< hCol <<"><"<< hCol <<">)";
+      m_t << "</"<< hCol <<">\n";
+      m_t << "          <"<< hCol <<">";
     }
     else
     {
-      m_t << "&#160;</td>\n";
-      m_t << "        </tr>\n";
-      m_t << "        <tr>\n";
-      m_t << "          <td></td>\n";
-      m_t << "          <td>";
+      m_t << "&#160;</"<< hCol <<">\n";
+      m_t << "        </"<< hRow <<">\n";
+      m_t << "        <"<< hRow <<">\n";
+      m_t << "          <"<< hCol <<"></"<< hCol <<">\n";
+      m_t << "          <"<< hCol <<">";
       if (closeBracket) m_t << ")";
-      m_t << "</td>\n";
-      m_t << "          <td></td><td>";
+      m_t << "</"<< hCol <<">\n";
+      m_t << "          <"<< hCol <<"></"<< hCol <<"><"<< hCol <<">";
     }
   }
   else
   {
-    m_t << "</td>\n";
-    m_t << "        </tr>\n";
+    m_t << "</"<< hCol <<">\n";
+    m_t << "        </"<< hRow <<">\n";
   }
 }
 
 void HtmlGenerator::endParameterList()
 {
   DBG_HTML(m_t << "<!-- endParameterList -->\n";)
-  m_t << "</td>\n";
-  m_t << "        </tr>\n";
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    m_t << "</td>\n";
+    m_t << "        </tr>\n";
+  }
+  else
+  {
+    m_t << "</span>\n";
+    m_t << "        </div>\n";
+  }
 }
 
 void HtmlGenerator::exceptionEntry(const QCString &prefix,bool closeBracket)
 {
   DBG_HTML(m_t << "<!-- exceptionEntry -->\n";)
-  m_t << "</td>\n";
-  m_t << "        </tr>\n";
-  m_t << "        <tr>\n";
-  m_t << "          <td align=\"right\">";
+  QCString hRow = "tr";
+  QCString hCol = "td";
+  if (!Config_getBool(HTML_TABLE_DECLARATIONS))
+  {
+    hRow = "div";
+    hCol = "span";
+  }
+
+  m_t << "</"<< hCol <<">\n";
+  m_t << "        </"<< hRow <<">\n";
+  m_t << "        <"<< hRow <<">\n";
+  m_t << "          <"<< hCol <<" align=\"right\">";
   // colspan 2 so it gets both parameter type and parameter name columns
   if (!prefix.isEmpty())
-    m_t << prefix << "</td><td>(</td><td colspan=\"2\">";
+    m_t << prefix << "</"<< hCol <<"><"<< hCol <<">(</"<< hCol <<"><"<< hCol <<" colspan=\"2\">";
   else if (closeBracket)
-    m_t << "</td><td>)</td><td></td><td>";
+    m_t << "</"<< hCol <<"><"<< hCol <<">)</"<< hCol <<"><"<< hCol <<"></"<< hCol <<"><"<< hCol <<">";
   else
-    m_t << "</td><td></td><td colspan=\"2\">";
+    m_t << "</"<< hCol <<"><"<< hCol <<"></"<< hCol <<"><"<< hCol <<" colspan=\"2\">";
 }
 
 void HtmlGenerator::endMemberDoc(bool hasArgs)
 {
   DBG_HTML(m_t << "<!-- endMemberDoc -->\n";)
-  if (!hasArgs)
+  if (Config_getBool(HTML_TABLE_DECLARATIONS))
   {
-    m_t << "        </tr>\n";
+    if (!hasArgs)
+    {
+      m_t << "        </tr>\n";
+    }
+    m_t << "      </table>\n";
+    // m_t << "</div>\n";
   }
-  m_t << "      </table>\n";
- // m_t << "</div>\n";
+  else
+  {
+    if (!hasArgs)
+    {
+      m_t << "        </div>\n";
+    }
+    m_t << "      </div>\n";
+  }
 }
 
 void HtmlGenerator::startDotGraph()
@@ -3389,6 +3472,7 @@ void HtmlGenerator::endInlineMemberDoc()
 void HtmlGenerator::startLabels()
 {
   DBG_HTML(m_t << "<!-- startLabels -->\n";)
+
   m_t << "<span class=\"mlabels\">";
 }
 

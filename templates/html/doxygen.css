@@ -1667,3 +1667,16 @@ details[open]>summary::before {
     font-size: 80%;
 }
 
+div.memitem div.memname {
+	display: inline-table;
+	border-collapse: collapse;
+}
+
+div.memitem div.memname > div {
+	display: table-row;
+}
+
+div.memitem div.memname > div > span {
+	display: table-cell;
+	padding: 2px;
+}
