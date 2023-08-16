@@ -2263,13 +2263,14 @@ void HtmlGenerator::endMemberDocList()
   DBG_HTML(m_t << "<!-- endMemberDocList -->\n";)
 }
 
-void HtmlGenerator::startMemberDoc( const QCString &/* clName */, const QCString &/* memName */,
+void HtmlGenerator::startMemberDoc( const QCString &/* clName */, const QCString &memName,
                                     const QCString &anchor, const QCString &title,
                                     int memCount, int memTotal, bool /* showInline */)
 {
   DBG_HTML(m_t << "<!-- startMemberDoc -->\n";)
   m_t << "\n<h2 class=\"memtitle\">"
-      << "<span class=\"permalink\"><a href=\"#" << anchor << "\">&#9670;&#160;</a></span>";
+      << R"(<span class="permalink"><a href="#)" << anchor << R"(" aria-label=")" << memName
+      << R"(">&#9670;&#160;</a></span>)";
   docify(title);
   if (memTotal>1)
   {
