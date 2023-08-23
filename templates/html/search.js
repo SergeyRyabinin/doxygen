@@ -836,7 +836,7 @@ function init_search()
   var input = document.getElementById("MSearchSelect");
   var searchSelectWindow = document.getElementById("MSearchSelectWindow");
 
-  input.addEventListener("keypress", function(event) {
+  input.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
       event.preventDefault();
       if (searchSelectWindow.style.display == 'block') {
@@ -846,6 +846,8 @@ function init_search()
         searchBox.OnSearchSelectShow();
         searchSelectWindow.focus();
       }
+    } else if (event.key === "Escape") {
+      searchBox.OnSearchSelectHide();
     }
   });
 }
