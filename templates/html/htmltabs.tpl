@@ -54,10 +54,7 @@
    <li>
      <div id="MSearchBox" class="MSearchBoxInactive">
      <span class="left">
-       <img id="MSearchSelect" src="{{ page.relPath }}search/mag_sel.svg"
-            onmouseover="return searchBox.OnSearchSelectShow()"
-            onmouseout="return searchBox.OnSearchSelectHide()"
-            alt=""/>
+       <img id="MSearchSelect" src="{{ page.relPath }}search/mag_sel.svg" alt=""/>
        <input type="text" id="MSearchField" value="{{ tr.search }}" accesskey="S"
             onfocus="searchBox.OnSearchFieldFocus(true)"
             onblur="searchBox.OnSearchFieldFocus(false)"
