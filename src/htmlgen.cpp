@@ -2264,7 +2264,7 @@ void HtmlGenerator::startMemberDoc( const QCString &/* clName */, const QCString
                                     int memCount, int memTotal, bool /* showInline */)
 {
   DBG_HTML(m_t << "<!-- startMemberDoc -->\n";)
-  m_t << "\n<h2 class=\"memtitle\">"
+  m_t << "\n<h3 class=\"memtitle\">"
       << R"(<span class="permalink"><a href="#)" << anchor << R"(" aria-label=")" << memName
       << R"(">&#9670;&#160;</a></span>)";
   docify(title);
