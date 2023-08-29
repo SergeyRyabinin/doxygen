@@ -308,6 +308,7 @@ class HtmlGenerator : public OutputGenerator
     bool                            m_emptySection = false;
     std::unique_ptr<OutputCodeList> m_codeList;
     HtmlCodeGenerator              *m_codeGen = nullptr;
+    std::map<QCString, int>         m_objectLinkSeen;
 };
 
 #endif

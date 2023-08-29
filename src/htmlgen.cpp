@@ -1710,7 +1710,17 @@ void HtmlGenerator::writeObjectLink(const QCString &ref,const QCString &f,
     m_t << fn;
   }
   if (!anchor.isEmpty()) m_t << "#" << anchor;
-  m_t << "\">";
+  QCString readableName = [&]() -> QCString {
+      const auto  &find = m_objectLinkSeen.find(name);
+      if (!anchor.isEmpty() && find != m_objectLinkSeen.end()) {
+          auto readableName = name + " " + std::to_string(find->second);
+          find->second += 1;
+          return readableName;
+      }
+      m_objectLinkSeen.emplace(name, 1);
+      return name;
+  }();
+  m_t << "\" aria-label=\"" << readableName << "\">";
   docify(name);
   m_t << "</a>";
 }
