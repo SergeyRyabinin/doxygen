@@ -279,19 +279,21 @@ int DotFilePatcher::addFigure(const QCString &baseName,
 
 int DotFilePatcher::addSVGConversion(const QCString &relPath,bool urlOnly,
                                      const QCString &context,bool zoomable,
-                                     int graphId)
+                                     int graphId,
+                                     const QCString &readableName)
 {
   size_t id = m_maps.size();
-  m_maps.emplace_back("",relPath,urlOnly,context,"",zoomable,graphId);
+  m_maps.emplace_back("",relPath,urlOnly,context,"",zoomable,graphId, readableName);
   return static_cast<int>(id);
 }
 
 int DotFilePatcher::addSVGObject(const QCString &baseName,
                                  const QCString &absImgName,
-                                 const QCString &relPath)
+                                 const QCString &relPath,
+                                 const QCString &readableName)
 {
   size_t id = m_maps.size();
-  m_maps.emplace_back(absImgName,relPath,false,"",baseName);
+  m_maps.emplace_back(absImgName,relPath,false,"",baseName, false, -1, readableName);
   return static_cast<int>(id);
 }
 
@@ -418,7 +420,7 @@ bool DotFilePatcher::run() const
         const Map &map = m_maps.at(mapId);
         //printf("DotFilePatcher::writeSVGFigure: file=%s zoomable=%d\n",
         //  qPrint(m_patchFile),map.zoomable);
-        if (!writeSVGFigureLink(t,map.relPath,map.label,map.mapFile))
+        if (!writeSVGFigureLink(t,map.relPath,map.label,map.mapFile, map.readableName))
         {
           err("Problem extracting size from SVG file %s\n",qPrint(map.mapFile));
         }
@@ -562,8 +564,11 @@ static void writeSVGNotSupported(TextStream &out)
 
 /// Check if a reference to a SVG figure can be written and do so if possible.
 /// Returns FALSE if not possible (for instance because the SVG file is not yet generated).
-bool DotFilePatcher::writeSVGFigureLink(TextStream &out,const QCString &relPath,
-                        const QCString &baseName,const QCString &absImgName)
+bool DotFilePatcher::writeSVGFigureLink(TextStream &out,
+    const QCString &relPath,
+    const QCString &baseName,
+    const QCString &absImgName,
+    const QCString &readableName)
 {
   int width=600,height=600;
   if (!readSVGSize(absImgName,&width,&height))
@@ -578,7 +583,8 @@ bool DotFilePatcher::writeSVGFigureLink(TextStream &out,const QCString &relPath,
     //out << "<object type=\"image/svg+xml\" data=\""
     //out << "<embed type=\"image/svg+xml\" src=\""
     out << "<iframe scrolling=\"no\" frameborder=\"0\" src=\""
-        << relPath << baseName << ".svg\" width=\"100%\" height=\"" << height << "\">";
+        << relPath << baseName << ".svg\" width=\"100%\" height=\"" << height << "\" "
+        << " aria-label=\"" << readableName << "\">";
   }
   else
   {
@@ -587,7 +593,8 @@ bool DotFilePatcher::writeSVGFigureLink(TextStream &out,const QCString &relPath,
     out << "<iframe scrolling=\"no\" frameborder=\"0\" src=\""
         << relPath << baseName << ".svg\" width=\""
         << ((width*96+48)/72) << "\" height=\""
-        << ((height*96+48)/72) << "\">";
+        << ((height*96+48)/72) << "\" "
+        << " aria-label=\"" << readableName << "\">";
   }
   writeSVGNotSupported(out);
   //out << "</object>";

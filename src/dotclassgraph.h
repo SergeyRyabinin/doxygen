@@ -40,6 +40,7 @@ public:
   void writeXML(TextStream &t);
   void writeDocbook(TextStream &t);
   void writeDEF(TextStream &t);
+  QCString textualRepresentation();
 
 protected:
   virtual QCString getBaseName() const;

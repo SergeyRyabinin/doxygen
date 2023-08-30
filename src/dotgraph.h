@@ -51,7 +51,8 @@ class DotGraph
                         const QCString &fileName,
                         const QCString &relPath,
                         bool writeImageMap=TRUE,
-                        int graphId=-1
+                        int graphId=-1,
+                        const QCString &readableName="Graph"
                        );
 
     static void writeGraphHeader(TextStream& t, const QCString& title = QCString());
@@ -102,7 +103,7 @@ class DotGraph
     DotGraph &operator=(const DotGraph &);
 
     bool prepareDotFile();
-    void generateCode(TextStream &t);
+    void generateCode(TextStream &t, const QCString& readableName);
 
     int m_curNodeNumber = 0;
     int m_curEdgeNumber = 0;

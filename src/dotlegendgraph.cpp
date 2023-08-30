@@ -33,7 +33,7 @@ void DotLegendGraph::writeGraph(const QCString &path)
   {
     DotManager::instance()->
       createFilePatcher(absBaseName()+Config_getString(HTML_FILE_EXTENSION))->
-      addSVGObject("graph_legend", absImgName(),QCString());
+      addSVGObject("graph_legend", absImgName(),QCString(), "Graph");
   }
 }
 
