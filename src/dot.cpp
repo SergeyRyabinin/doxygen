@@ -309,9 +309,9 @@ void writeDotImageMapFromFile(TextStream &t,
   if (imgExt=="svg") // vector graphics
   {
     QCString svgName = outDir+"/"+baseName+".svg";
-    DotFilePatcher::writeSVGFigureLink(t,relPath,baseName,svgName);
+    DotFilePatcher::writeSVGFigureLink(t,relPath,baseName,svgName, "Graph");
     DotFilePatcher patcher(svgName);
-    patcher.addSVGConversion("",TRUE,context,TRUE,graphId);
+    patcher.addSVGConversion("",TRUE,context,TRUE,graphId, "Graph");
     patcher.run();
   }
   else // bitmap graphics

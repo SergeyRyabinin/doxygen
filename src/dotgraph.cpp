@@ -113,14 +113,15 @@ QCString DotGraph::imgName() const
 std::mutex g_dotIndexListMutex;
 
 QCString DotGraph::writeGraph(
-        TextStream& t,            // output stream for the code file (html, ...)
-        GraphOutputFormat gf,     // bitmap(png/svg) or ps(eps/pdf)
-        EmbeddedOutputFormat ef,  // html, latex, ...
-        const QCString &path,     // output folder
-        const QCString &fileName, // name of the code file (for code patcher)
-        const QCString &relPath,  // output folder relative to code file
-        bool generateImageMap,    // in case of bitmap, shall there be code generated?
-        int graphId)              // number of this graph in the current code, used in svg code
+        TextStream& t,                  // output stream for the code file (html, ...)
+        GraphOutputFormat gf,           // bitmap(png/svg) or ps(eps/pdf)
+        EmbeddedOutputFormat ef,        // html, latex, ...
+        const QCString &path,           // output folder
+        const QCString &fileName,       // name of the code file (for code patcher)
+        const QCString &relPath,        // output folder relative to code file
+        bool generateImageMap,          // in case of bitmap, shall there be code generated?
+        int graphId,                    // number of this graph in the current code, used in svg code
+        const QCString &readableName)   // Readable name of graph
 {
   m_graphFormat = gf;
   m_textFormat = ef;
@@ -143,7 +144,7 @@ QCString DotGraph::writeGraph(
     Doxygen::indexList->addImageFile(imgName());
   }
 
-  generateCode(t);
+  generateCode(t, readableName);
 
   return m_baseName;
 }
@@ -209,7 +210,7 @@ bool DotGraph::prepareDotFile()
   return TRUE;
 }
 
-void DotGraph::generateCode(TextStream &t)
+void DotGraph::generateCode(TextStream &t, const QCString& readableName)
 {
   QCString imgExt = getDotImageExtension();
   if (m_graphFormat==GOF_BITMAP && m_textFormat==EOF_DocBook)
@@ -231,17 +232,17 @@ void DotGraph::generateCode(TextStream &t)
     if (imgExt=="svg") // add link to SVG file without map file
     {
       if (!m_noDivTag) t << "<div class=\"center\">";
-      if (m_regenerate || !DotFilePatcher::writeSVGFigureLink(t,m_relPath,m_baseName,absImgName())) // need to patch the links in the generated SVG file
+      if (m_regenerate || !DotFilePatcher::writeSVGFigureLink(t,m_relPath,m_baseName,absImgName(), readableName)) // need to patch the links in the generated SVG file
       {
         if (m_regenerate)
         {
           DotManager::instance()->
                createFilePatcher(absImgName())->
-               addSVGConversion(m_relPath,FALSE,QCString(),m_zoomable,m_graphId);
+               addSVGConversion(m_relPath,FALSE,QCString(),m_zoomable,m_graphId, readableName);
         }
         int mapId = DotManager::instance()->
                createFilePatcher(m_fileName)->
-               addSVGObject(m_baseName,absImgName(),m_relPath);
+               addSVGObject(m_baseName,absImgName(),m_relPath, readableName);
         t << "<!-- " << "SVG " << mapId << " -->";
       }
       if (!m_noDivTag) t << "</div>\n";

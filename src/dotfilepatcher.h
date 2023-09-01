@@ -34,10 +34,11 @@ class DotFilePatcher
                   const QCString &figureName,bool heightCheck);
 
     int addSVGConversion(const QCString &relPath,bool urlOnly,
-                         const QCString &context,bool zoomable,int graphId);
+                         const QCString &context,bool zoomable,int graphId,
+                         const QCString &readableName);
 
     int addSVGObject(const QCString &baseName, const QCString &figureName,
-                     const QCString &relPath);
+                     const QCString &relPath, const QCString &readableName);
     bool run() const;
     bool isSVGFile() const;
 
@@ -45,8 +46,11 @@ class DotFilePatcher
                                const QCString &relPath, bool urlOnly=FALSE,
                                const QCString &context=QCString());
 
-    static bool writeSVGFigureLink(TextStream &out,const QCString &relPath,
-                                   const QCString &baseName,const QCString &absImgName);
+    static bool writeSVGFigureLink(TextStream &out,
+        const QCString &relPath,
+        const QCString &baseName,
+        const QCString &absImgName,
+        const QCString &readableName);
 
     static bool writeVecGfxFigure(TextStream& out, const QCString& baseName,
                                   const QCString& figureName);
@@ -55,9 +59,9 @@ class DotFilePatcher
     struct Map
     {
       Map(const QCString &mf,const QCString &rp,bool uo,const QCString &ctx,
-          const QCString &lab,bool zoom=false,int gId=-1) :
+          const QCString &lab,bool zoom=false,int gId=-1, const QCString &rName = "Graph") :
         mapFile(mf), relPath(rp), urlOnly(uo), context(ctx),
-        label(lab), zoomable(zoom), graphId(gId) {}
+        label(lab), zoomable(zoom), graphId(gId), readableName(rName) {}
       QCString mapFile;
       QCString relPath;
       bool     urlOnly;
@@ -65,6 +69,7 @@ class DotFilePatcher
       QCString label;
       bool     zoomable;
       int      graphId;
+      QCString readableName;
     };
     std::vector<Map> m_maps;
     QCString m_patchFile;

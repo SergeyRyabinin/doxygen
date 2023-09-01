@@ -14,6 +14,7 @@
 */
 
 #include <algorithm>
+#include <queue>
 
 #include "containers.h"
 #include "dotclassgraph.h"
@@ -453,7 +454,8 @@ QCString DotClassGraph::writeGraph(TextStream &out,
   bool generateImageMap,
   int graphId)
 {
-  return DotGraph::writeGraph(out, graphFormat, textFormat, path, fileName, relPath, generateImageMap, graphId);
+  return DotGraph::writeGraph(out, graphFormat, textFormat, path, fileName, relPath, generateImageMap, graphId,
+      this->textualRepresentation());
 }
 
 //--------------------------------------------------------------------
@@ -480,4 +482,27 @@ void DotClassGraph::writeDEF(TextStream &t)
   {
     node->writeDEF(t);
   }
+}
+
+QCString DotClassGraph::textualRepresentation() {
+  std::stringstream stream;
+  std::queue<DotNode *> nodes;
+  nodes.emplace(this->m_startNode);
+  while (!nodes.empty()) {
+    DotNode *node = nodes.front();
+    nodes.pop();
+    if (node != nullptr && !node->children().empty()) {
+      stream << node->label();
+      bool firstPass = true;
+      for (const auto &child: node->children()) {
+        if (child != nullptr) {
+          stream << (firstPass ? " Inherits from " : " and ") << child->label();
+          firstPass = false;
+          nodes.push(child);
+        }
+      }
+      stream << ";";
+    }
+  }
+  return stream.str();
 }
