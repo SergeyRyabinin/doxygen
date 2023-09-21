@@ -820,10 +820,6 @@ div.directory {
 	padding-top: 3px;
 }
 
-.directory td.entry a {
-        outline:none;
-}
-
 .directory td.entry a img {
         border: none;
 }
