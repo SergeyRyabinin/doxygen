@@ -319,7 +319,8 @@ static void endQuickIndexList(OutputList &ol)
 }
 
 static void startQuickIndexItem(OutputList &ol,const QCString &l,
-                                bool hl,bool /* compact */,bool &first)
+                                bool hl,bool /* compact */,bool &first,
+                                const QCString &label = "")
 {
   first=FALSE;
   ol.writeString("      <li");
@@ -328,7 +329,14 @@ static void startQuickIndexItem(OutputList &ol,const QCString &l,
   ol.writeString("href=\"");
   ol.writeString(l);
   ol.writeString("\">");
-  ol.writeString("<span>");
+  if (label.isEmpty()) {
+    ol.writeString("<span>");
+  } else {
+    ol.writeString("<span ");
+    ol.writeString("aria-label: \"");
+    ol.writeString(label);
+    ol.writeString("\">");
+  }
 }
 
 static void endQuickIndexItem(OutputList &ol)
@@ -2904,7 +2912,7 @@ void Index::addFileMemberNameToIndex(const MemberDef *md)
 
 static void writeQuickMemberIndex(OutputList &ol,
     const Index::MemberIndexMap &map,const std::string &page,
-    QCString fullName,bool multiPage)
+    QCString fullName,bool multiPage, const QCString &label = "")
 {
   bool first=TRUE;
   startQuickIndexList(ol,TRUE);
@@ -2920,7 +2928,7 @@ static void writeQuickMemberIndex(OutputList &ol,
       anchor=fullName+extension+"#index_";
     else
       anchor=fullName+"_"+is+extension+"#index_";
-    startQuickIndexItem(ol,anchor+convertToId(is),letter==page,TRUE,first);
+    startQuickIndexItem(ol,anchor+convertToId(is),letter==page,TRUE,first,label.isEmpty() ? label: label + " " + ci);
     ol.writeString(ci);
     endQuickIndexItem(ol);
     first=FALSE;
@@ -3374,7 +3382,7 @@ static void writeNamespaceMemberIndexFiltered(OutputList &ol,
         if (quickIndex)
         {
           writeQuickMemberIndex(ol,index.isNamespaceIndexLetterUsed(hl),letter,
-              getNmhlInfo(hl)->fname,multiPageIndex);
+              getNmhlInfo(hl)->fname,multiPageIndex, "namespace beginning with");
         }
       }
     }
