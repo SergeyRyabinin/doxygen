@@ -328,12 +328,16 @@ static void startQuickIndexItem(OutputList &ol,const QCString &l,
   ol.writeString("><a ");
   ol.writeString("href=\"");
   ol.writeString(l);
+  if (!label.isEmpty()) {
+    ol.writeString("\" aria-label=\"");
+    ol.writeString(label);
+  }
   ol.writeString("\">");
   if (label.isEmpty()) {
     ol.writeString("<span>");
   } else {
     ol.writeString("<span ");
-    ol.writeString("aria-label: \"");
+    ol.writeString("aria-label=\"");
     ol.writeString(label);
     ol.writeString("\">");
   }
