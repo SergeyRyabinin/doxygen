@@ -351,12 +351,17 @@ bool DotFilePatcher::run() const
     int i;
     if (isSVGFile)
     {
+      if (line.find("<svg")!=-1) {
+        line.replace(line.find("<svg"),
+            QCString("<svg").length(),
+            "<svg aria-hidden=\"true\"");
+      }
       if (interactiveSVG)
       {
         if (line.find("<svg")!=-1 && !replacedHeader)
         {
           int count;
-          count = sscanf(line.data(),"<svg width=\"%dpt\" height=\"%dpt\"",&width,&height);
+          count = sscanf(line.data(),R"(<svg aria-hidden="true" width="%dpt" height="%dpt")",&width,&height);
           //printf("width=%d height=%d\n",width,height);
           useNagivation = count==2 && (width>500 || height>450);
           insideHeader = count==2;
