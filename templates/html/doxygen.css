@@ -1064,7 +1064,6 @@ table.fieldtable {
 	height:32px;
 	display:block;
 	text-decoration: none;
-	outline: none;
 	color: var(--nav-text-normal-color);
 	font-family: var(--font-family-nav);
 	text-shadow: var(--nav-text-normal-shadow);
